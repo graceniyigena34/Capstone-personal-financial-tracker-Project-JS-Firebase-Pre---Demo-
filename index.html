@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 </head>
 <body>
@@ -11,43 +14,206 @@
 <!-- LEFT SECTION -->
     <div class="left">
       <div class="icon-box">
-        <img src="https://cdn-icons-png.flaticon.com/512/984/984196.png" alt="icon">
+        <i class="fas fa-chart-line"></i>
       </div>
       <h1>Manage Your Money</h1>
       <p class="subtitle">
         Track expenses, visualize spending patterns, and take control of your finances with our intuitive personal finance tracker.
       </p>
       <ul class="features">
-        <li>Real-time expense tracking</li>
-        <li>Smart analytics & insights</li>
-        <li>Export & backup your data</li>
+        <li><i class="fas fa-clock"></i>Real-time expense tracking</li>
+        <li><i class="fas fa-chart-pie"></i>Smart analytics & insights</li>
+        <li><i class="fas fa-download"></i>Export & backup your data</li>
       </ul>
     </div>
 
    <!-- RIGHT SECTION -->
     <div class="right">
       <div class="tabs">
-        <button class="tab active">Sign In</button>
-        <button class="tab">Create Account</button>
+        <button class="tab active" data-tab="signin">Sign In</button>
+        <button class="tab" data-tab="signup">Create Account</button>
       </div>
       
-       <form id="loginForm">
-        <label>Email</label>
-        <input type="email" id="email" placeholder="you@example.com" required />
+      <!-- Sign In Form -->
+      <form id="signinForm" class="form-container active">
+        <div class="input-group">
+          <label for="signin-email">Email Address</label>
+          <input type="email" id="signin-email" placeholder="you@example.com" required />
+        </div>
 
-        <label>Password</label>
-        <input type="password" id="password" required />
+        <div class="input-group">
+          <label for="signin-password">Password</label>
+          <div class="password-input">
+            <input type="password" id="signin-password" placeholder="Enter your password" required />
+            <button type="button" class="password-toggle" onclick="togglePassword('signin-password')">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
 
-        <button type="submit" class="btn">Sign In</button>
+        <div class="form-options">
+          <label class="checkbox-container">
+            <input type="checkbox" id="remember">
+            <span class="checkmark"></span>
+            Remember me
+          </label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
 
-        <div class="divider">Or continue with</div>
+        <button type="submit" class="btn primary">
+          <i class="fas fa-sign-in-alt"></i>
+          Sign In
+        </button>
 
-        <button type="button" class="google-btn" id="googleLogin">
-          <img src="https://www.svgrepo.com/show/475656/google-color.svg" />
-          Login with Google
+        <div class="divider">
+          <span>Or continue with</span>
+        </div>
+
+        <button type="button" class="btn google-btn" id="googleLogin">
+          <i class="fab fa-google"></i>
+          Continue with Google
+        </button>
+      </form>
+
+      <!-- Sign Up Form -->
+      <form id="signupForm" class="form-container">
+        <div class="input-group">
+          <label for="signup-name">Full Name</label>
+          <input type="text" id="signup-name" placeholder="John Doe" required />
+        </div>
+
+        <div class="input-group">
+          <label for="signup-email">Email Address</label>
+          <input type="email" id="signup-email" placeholder="you@example.com" required />
+        </div>
+
+        <div class="input-group">
+          <label for="signup-password">Password</label>
+          <div class="password-input">
+            <input type="password" id="signup-password" placeholder="Create a strong password" required />
+            <button type="button" class="password-toggle" onclick="togglePassword('signup-password')">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <div class="password-strength">
+            <div class="strength-bar"></div>
+            <span class="strength-text">Password strength</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="confirm-password">Confirm Password</label>
+          <div class="password-input">
+            <input type="password" id="confirm-password" placeholder="Confirm your password" required />
+            <button type="button" class="password-toggle" onclick="togglePassword('confirm-password')">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <label class="checkbox-container terms-checkbox">
+          <input type="checkbox" id="terms" required>
+          <span class="checkmark"></span>
+          I agree to the <a href="#" class="link">Terms of Service</a> and <a href="#" class="link">Privacy Policy</a>
+        </label>
+
+        <button type="submit" class="btn primary">
+          <i class="fas fa-user-plus"></i>
+          Create Account
+        </button>
+
+        <div class="divider">
+          <span>Or continue with</span>
+        </div>
+
+        <button type="button" class="btn google-btn" id="googleSignup">
+          <i class="fab fa-google"></i>
+          Continue with Google
         </button>
       </form>
     
     </div>
+  </div>
+
+  <script>
+    // Tab switching functionality
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabType = tab.dataset.tab;
+        
+        // Update active tab
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        // Show corresponding form
+        document.querySelectorAll('.form-container').forEach(form => {
+          form.classList.remove('active');
+        });
+        
+        if (tabType === 'signin') {
+          document.getElementById('signinForm').classList.add('active');
+        } else {
+          document.getElementById('signupForm').classList.add('active');
+        }
+      });
+    });
+
+    // Password toggle functionality
+    function togglePassword(inputId) {
+      const input = document.getElementById(inputId);
+      const toggle = input.nextElementSibling;
+      const icon = toggle.querySelector('i');
+      
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
+    // Password strength checker
+    document.getElementById('signup-password').addEventListener('input', function() {
+      const password = this.value;
+      const strengthBar = document.querySelector('.strength-bar');
+      const strengthText = document.querySelector('.strength-text');
+      
+      let strength = 0;
+      if (password.length >= 8) strength++;
+      if (/[A-Z]/.test(password)) strength++;
+      if (/[0-9]/.test(password)) strength++;
+      if (/[^A-Za-z0-9]/.test(password)) strength++;
+      
+      const strengthLevels = ['Weak', 'Fair', 'Good', 'Strong'];
+      const strengthColors = ['#ff4757', '#ffa502', '#2ed573', '#1e90ff'];
+      
+      if (password.length > 0) {
+        strengthBar.style.width = (strength * 25) + '%';
+        strengthBar.style.backgroundColor = strengthColors[strength - 1] || '#ff4757';
+        strengthText.textContent = strengthLevels[strength - 1] || 'Weak';
+        strengthText.style.color = strengthColors[strength - 1] || '#ff4757';
+      } else {
+        strengthBar.style.width = '0%';
+        strengthText.textContent = 'Password strength';
+        strengthText.style.color = '#596b7a';
+      }
+    });
+
+    // Form submissions
+    document.getElementById('signinForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      // Add your sign in logic here
+      console.log('Sign in form submitted');
+    });
+
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      // Add your sign up logic here
+      console.log('Sign up form submitted');
+    });
+  </script>
 </body>
 </html>
