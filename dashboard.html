@@ -6,11 +6,20 @@
     <title>Dashboard - Financial Tracker</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex; }
+        .sidebar { width: 250px; background: white; height: 100vh; box-shadow: 2px 0 4px rgba(0,0,0,0.1); }
+        .sidebar-header { padding: 1.5rem; border-bottom: 1px solid #eee; }
+        .nav-menu { list-style: none; }
+        .nav-item { padding: 1rem 1.5rem; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
+        .nav-item:hover { background: #f8f9fa; }
+        .nav-item.active { background: #007bff; color: white; }
+        .main-container { flex: 1; }
         .header { background: white; padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
         .btn-logout { background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
-        .main-content { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .main-content { padding: 2rem; }
+        .content-section { display: none; }
+        .content-section.active { display: block; }
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
         .card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .balance-amount { font-size: 2rem; font-weight: bold; color: #28a745; margin: 0.5rem 0; }
@@ -26,71 +35,167 @@
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-content">
-            <h1>💰 Financial Tracker</h1>
-            <div>
-                <span id="userEmail">Welcome!</span>
-                <button class="btn-logout" onclick="logout()">Logout</button>
-            </div>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>💰 Financial Tracker</h2>
         </div>
-    </header>
+        <ul class="nav-menu">
+            <li class="nav-item active" onclick="showSection('dashboard')">📊 Dashboard</li>
+            <li class="nav-item" onclick="showSection('transactions')">💳 Transactions</li>
+            <li class="nav-item" onclick="showSection('analytics')">📈 Analytics</li>
+            <li class="nav-item" onclick="showSection('settings')">⚙️ Settings</li>
+        </ul>
+    </div>
 
-    <main class="main-content">
-        <div class="dashboard-grid">
-            <div class="card">
-                <h3>💳 Total Balance</h3>
-                <div class="balance-amount">$2,450.00</div>
-                <div>+$150.00 this month</div>
-            </div>
-
-            <div class="card income-card">
-                <h3>📈 Income</h3>
-                <div class="amount">$3,200.00</div>
-                <div>This month</div>
-            </div>
-
-            <div class="card expense-card">
-                <h3>📉 Expenses</h3>
-                <div class="amount">$750.00</div>
-                <div>This month</div>
-            </div>
-
-            <div class="card">
-                <h3>⚡ Quick Actions</h3>
-                <button class="action-btn income-btn">+ Add Income</button>
-                <button class="action-btn expense-btn">- Add Expense</button>
-            </div>
-
-            <div class="card">
-                <h3>📋 Recent Transactions</h3>
-                <div class="transaction income">
-                    <div>
-                        <div>Salary</div>
-                        <small>Today</small>
-                    </div>
-                    <span class="transaction-amount">+$2,500.00</span>
-                </div>
-                <div class="transaction expense">
-                    <div>
-                        <div>Groceries</div>
-                        <small>Yesterday</small>
-                    </div>
-                    <span class="transaction-amount">-$85.50</span>
+    <!-- Main Container -->
+    <div class="main-container">
+        <header class="header">
+            <div class="header-content">
+                <h1 id="pageTitle">Dashboard</h1>
+                <div>
+                    <span id="userEmail">Welcome!</span>
+                    <button class="btn-logout" onclick="logout()">Logout</button>
                 </div>
             </div>
-        </div>
-    </main>
+        </header>
+
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="content-section active">
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>💳 Total Balance</h3>
+                        <div class="balance-amount">$2,450.00</div>
+                        <div>+$150.00 this month</div>
+                    </div>
+                    <div class="card income-card">
+                        <h3>📈 Income</h3>
+                        <div class="amount">$3,200.00</div>
+                        <div>This month</div>
+                    </div>
+                    <div class="card expense-card">
+                        <h3>📉 Expenses</h3>
+                        <div class="amount">$750.00</div>
+                        <div>This month</div>
+                    </div>
+                    <div class="card">
+                        <h3>⚡ Quick Actions</h3>
+                        <button class="action-btn income-btn">+ Add Income</button>
+                        <button class="action-btn expense-btn">- Add Expense</button>
+                    </div>
+                    <div class="card">
+                        <h3>📋 Recent Transactions</h3>
+                        <div class="transaction income">
+                            <div>
+                                <div>Salary</div>
+                                <small>Today</small>
+                            </div>
+                            <span class="transaction-amount">+$2,500.00</span>
+                        </div>
+                        <div class="transaction expense">
+                            <div>
+                                <div>Groceries</div>
+                                <small>Yesterday</small>
+                            </div>
+                            <span class="transaction-amount">-$85.50</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions Section -->
+            <div id="transactions" class="content-section">
+                <div class="card">
+                    <h3>💳 All Transactions</h3>
+                    <div class="transaction income">
+                        <div><div>Salary</div><small>Dec 15, 2024</small></div>
+                        <span class="transaction-amount">+$2,500.00</span>
+                    </div>
+                    <div class="transaction expense">
+                        <div><div>Groceries</div><small>Dec 14, 2024</small></div>
+                        <span class="transaction-amount">-$85.50</span>
+                    </div>
+                    <div class="transaction expense">
+                        <div><div>Gas</div><small>Dec 13, 2024</small></div>
+                        <span class="transaction-amount">-$45.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div id="analytics" class="content-section">
+                <div class="card">
+                    <h3>📈 Financial Analytics</h3>
+                    <p>Monthly spending trends and insights will be displayed here.</p>
+                    <div style="height: 200px; background: #f8f9fa; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-top: 1rem;">
+                        📊 Charts and graphs coming soon
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings" class="content-section">
+                <div class="card">
+                    <h3>⚙️ Settings</h3>
+                    <div style="margin: 1rem 0;">
+                        <label>Currency: </label>
+                        <select style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd;">
+                            <option>USD ($)</option>
+                            <option>EUR (€)</option>
+                            <option>GBP (£)</option>
+                        </select>
+                    </div>
+                    <div style="margin: 1rem 0;">
+                        <label>Theme: </label>
+                        <select style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd;">
+                            <option>Light</option>
+                            <option>Dark</option>
+                        </select>
+                    </div>
+                    <button style="background: #007bff; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer;">Save Settings</button>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <script>
-        // Simple logout without Firebase for testing
+        // Navigation function
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionName).classList.add('active');
+            
+            // Add active class to clicked nav item
+            event.target.classList.add('active');
+            
+            // Update page title
+            const titles = {
+                dashboard: 'Dashboard',
+                transactions: 'Transactions',
+                analytics: 'Analytics',
+                settings: 'Settings'
+            };
+            document.getElementById('pageTitle').textContent = titles[sectionName];
+        }
+
+        // Logout function
         window.logout = () => {
             if (confirm('Are you sure you want to logout?')) {
                 window.location.href = 'index.html';
             }
         };
         
-        // Show user email if available
+        // Show user email
         const urlParams = new URLSearchParams(window.location.search);
         const email = urlParams.get('email') || 'user@example.com';
         document.getElementById('userEmail').textContent = email;
