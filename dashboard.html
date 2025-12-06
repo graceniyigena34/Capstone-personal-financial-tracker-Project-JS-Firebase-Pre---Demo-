@@ -724,6 +724,11 @@
         function renderCategories() {
             const incomeList = document.querySelector('.category-block.income .category-list');
             const expenseList = document.querySelector('.category-block.expense .category-list');
+            const incomeTitle = document.querySelector('.category-block.income h3');
+            const expenseTitle = document.querySelector('.category-block.expense h3');
+            
+            incomeTitle.innerHTML = `📈 Income Categories (${incomeCategories.length})`;
+            expenseTitle.innerHTML = `📉 Expense Categories (${expenseCategories.length})`;
             
             incomeList.innerHTML = incomeCategories.map(cat => `
                 <li class="category-item">
