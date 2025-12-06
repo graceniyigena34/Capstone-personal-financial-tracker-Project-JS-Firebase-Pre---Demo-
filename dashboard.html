@@ -75,6 +75,31 @@
             cursor: pointer;
             margin-bottom: 1rem;
         }
+        .transaction-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .btn-export {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .page-header {
+            margin-bottom: 1.5rem;
+        }
+        .page-header h2 {
+            font-size: 1.5rem;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        .page-header p {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
 
         .modal {
             display: none;
@@ -297,7 +322,14 @@
 
             <!-- Transactions Section (UPDATED) -->
             <div id="transactions" class="content-section">
-                <button class="btn-add" onclick="openModal()">+ Add Transaction</button>
+                <div class="page-header">
+                    <h2>Transactions</h2>
+                    <p>View and manage all your financial transactions</p>
+                </div>
+                <div class="transaction-actions">
+                    <button class="btn-export" onclick="exportCSV()">📥 Export CSV</button>
+                    <button class="btn-add" onclick="openModal()">+ Add Transaction</button>
+                </div>
                 <div class="transaction-box">
                     <h3>💳 All Transactions</h3>
                     <div id="transactionList"></div>
@@ -480,6 +512,32 @@
                 window.location.href = "index.html";
             }
         };
+
+        // Export CSV function
+        function exportCSV() {
+            const headers = ['Date', 'Description', 'Category', 'Type', 'Amount', 'Place'];
+            const csvData = transactions.map(t => [
+                t.date,
+                t.description,
+                t.category,
+                t.type,
+                t.amount,
+                t.place || ''
+            ]);
+            
+            let csv = headers.join(',') + '\n';
+            csvData.forEach(row => {
+                csv += row.join(',') + '\n';
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'transactions_' + new Date().toISOString().split('T')[0] + '.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
 
         const params = new URLSearchParams(window.location.search);
         document.getElementById("userEmail").textContent = params.get("email") || "user@example.com";
