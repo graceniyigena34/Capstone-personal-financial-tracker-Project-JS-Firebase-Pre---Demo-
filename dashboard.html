@@ -860,10 +860,22 @@
     </div>
 
     <script>
+        // Generate current month dates
+        const today = new Date();
+        const getRecentDate = (daysAgo) => {
+            const d = new Date();
+            d.setDate(d.getDate() - daysAgo);
+            return d.toISOString().split('T')[0];
+        };
+        
         let transactions = [
-            {id: 1, description: 'Monthly Salary', amount: 2500, type: 'income', category: 'Salary', date: '2024-12-15', place: 'Company Office', receipt: null},
-            {id: 2, description: 'Groceries', amount: 85.50, type: 'expense', category: 'Food', date: '2024-12-14', place: 'Walmart', receipt: null},
-            {id: 3, description: 'Gas', amount: 45, type: 'expense', category: 'Transport', date: '2024-12-13', place: 'Shell Station', receipt: null}
+            {id: 1, description: 'Monthly Salary', amount: 2500, type: 'income', category: 'Salary', date: getRecentDate(5), place: 'Company Office', receipt: null},
+            {id: 2, description: 'Freelance Project', amount: 800, type: 'income', category: 'Freelance', date: getRecentDate(10), place: 'Online', receipt: null},
+            {id: 3, description: 'Stock Dividend', amount: 150, type: 'income', category: 'Investment', date: getRecentDate(15), place: 'Brokerage', receipt: null},
+            {id: 4, description: 'Groceries', amount: 85.50, type: 'expense', category: 'Food', date: getRecentDate(3), place: 'Walmart', receipt: null},
+            {id: 5, description: 'Gas', amount: 45, type: 'expense', category: 'Transport', date: getRecentDate(7), place: 'Shell Station', receipt: null},
+            {id: 6, description: 'New Shoes', amount: 120, type: 'expense', category: 'Shopping', date: getRecentDate(12), place: 'Nike Store', receipt: null},
+            {id: 7, description: 'Electricity Bill', amount: 95, type: 'expense', category: 'Bills', date: getRecentDate(18), place: 'Utility Company', receipt: null}
         ];
         let editingId = null;
         
@@ -994,6 +1006,7 @@
             drawBalanceChart();
             renderRecentTransactions();
             updateAnalytics();
+            updateCategoryFilter();
         }
 
         let incomeExpenseChart = null;
@@ -1343,6 +1356,13 @@
                 receipt: document.getElementById('receipt').files[0]?.name || null
             };
 
+            // Auto-add category if it doesn't exist
+            if (data.type === 'income' && !incomeCategories.includes(data.category)) {
+                incomeCategories.push(data.category);
+            } else if (data.type === 'expense' && !expenseCategories.includes(data.category)) {
+                expenseCategories.push(data.category);
+            }
+
             if (editingId) {
                 const index = transactions.findIndex(t => t.id === editingId);
                 transactions[index] = {...transactions[index], ...data};
@@ -1351,6 +1371,7 @@
             }
 
             renderTransactions();
+            renderCategories();
             closeModal();
         });
 
