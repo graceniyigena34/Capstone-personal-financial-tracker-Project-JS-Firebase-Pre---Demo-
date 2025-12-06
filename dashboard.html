@@ -655,8 +655,33 @@
                     <h2>Analytics</h2>
                     <p>Visualize your spending patterns and financial insights</p>
                 </div>
-                <div class="card">
-                    <p style="color: #64748b; text-align: center; padding: 2rem;">Analytics charts and insights will be displayed here.</p>
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h4>Top Category</h4>
+                        <div class="value" style="color: #1e293b;" id="topCategoryAmount">$0.00</div>
+                    </div>
+                    <div class="summary-card income">
+                        <h4>Total Income</h4>
+                        <div class="value" id="ytdIncome">$0.00</div>
+                    </div>
+                    <div class="summary-card expense">
+                        <h4>Total Expense</h4>
+                        <div class="value" id="ytdExpense">$0.00</div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+                    <div class="chart-card" style="margin-top: 0;">
+                        <h3>📊 Income vs Expense</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="incomeExpenseChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card" style="margin-top: 0;">
+                        <h3>🥧 Spending by Category</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="categoryPieChart"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -847,6 +872,152 @@
             
             drawBalanceChart();
             renderRecentTransactions();
+            updateAnalytics();
+        }
+
+        let incomeExpenseChart = null;
+        let categoryPieChart = null;
+
+        function updateAnalytics() {
+            const currentYear = new Date().getFullYear();
+            
+            // Calculate YTD income and expense
+            const ytdIncome = transactions.filter(t => {
+                const tDate = new Date(t.date);
+                return t.type === 'income' && tDate.getFullYear() === currentYear;
+            }).reduce((sum, t) => sum + t.amount, 0);
+            
+            const ytdExpense = transactions.filter(t => {
+                const tDate = new Date(t.date);
+                return t.type === 'expense' && tDate.getFullYear() === currentYear;
+            }).reduce((sum, t) => sum + t.amount, 0);
+            
+            // Find top category
+            const categoryTotals = {};
+            transactions.forEach(t => {
+                if (!categoryTotals[t.category]) {
+                    categoryTotals[t.category] = 0;
+                }
+                categoryTotals[t.category] += t.amount;
+            });
+            
+            let topCategory = '-';
+            let maxAmount = 0;
+            for (const [category, amount] of Object.entries(categoryTotals)) {
+                if (amount > maxAmount) {
+                    maxAmount = amount;
+                    topCategory = category;
+                }
+            }
+            
+            // Update analytics display
+            document.getElementById('ytdIncome').textContent = '$' + ytdIncome.toFixed(2);
+            document.getElementById('ytdExpense').textContent = '$' + ytdExpense.toFixed(2);
+            document.getElementById('topCategoryAmount').textContent = '$' + maxAmount.toFixed(2);
+            
+            drawIncomeExpenseChart();
+            drawCategoryPieChart();
+        }
+
+        function drawIncomeExpenseChart() {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const incomeData = new Array(12).fill(0);
+            const expenseData = new Array(12).fill(0);
+            
+            transactions.forEach(t => {
+                const date = new Date(t.date);
+                const month = date.getMonth();
+                if (t.type === 'income') {
+                    incomeData[month] += t.amount;
+                } else {
+                    expenseData[month] += t.amount;
+                }
+            });
+            
+            if (incomeExpenseChart) incomeExpenseChart.destroy();
+            
+            const ctx = document.getElementById('incomeExpenseChart').getContext('2d');
+            incomeExpenseChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: incomeData,
+                            backgroundColor: '#10b981',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Expense',
+                            data: expenseData,
+                            backgroundColor: '#dc3545',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'top' }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toFixed(0);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function drawCategoryPieChart() {
+            const expenseCategories = {};
+            transactions.filter(t => t.type === 'expense').forEach(t => {
+                if (!expenseCategories[t.category]) {
+                    expenseCategories[t.category] = 0;
+                }
+                expenseCategories[t.category] += t.amount;
+            });
+            
+            const labels = Object.keys(expenseCategories);
+            const data = Object.values(expenseCategories);
+            const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
+            
+            if (categoryPieChart) categoryPieChart.destroy();
+            
+            const ctx = document.getElementById('categoryPieChart').getContext('2d');
+            categoryPieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': $' + context.parsed.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         function renderRecentTransactions() {
