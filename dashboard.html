@@ -683,6 +683,23 @@
                         </div>
                     </div>
                 </div>
+                <div class="chart-card">
+                    <h3>📈 Summary</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.9rem; color: #64748b; margin-bottom: 0.75rem;">Savings Rate</div>
+                            <div style="font-size: 2rem; font-weight: bold; color: #3b82f6;" id="savingsRate">0%</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.9rem; color: #64748b; margin-bottom: 0.75rem;">Average Monthly Expense</div>
+                            <div style="font-size: 2rem; font-weight: bold; color: #dc3545;" id="avgMonthlyExpense">$0.00</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.9rem; color: #64748b; margin-bottom: 0.75rem;">Average Monthly Income</div>
+                            <div style="font-size: 2rem; font-weight: bold; color: #10b981;" id="avgMonthlyIncome">$0.00</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Settings Section -->
@@ -910,10 +927,33 @@
                 }
             }
             
+            // Calculate monthly averages
+            const monthlyIncome = {};
+            const monthlyExpense = {};
+            
+            transactions.forEach(t => {
+                const date = new Date(t.date);
+                const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+                
+                if (t.type === 'income') {
+                    monthlyIncome[monthKey] = (monthlyIncome[monthKey] || 0) + t.amount;
+                } else {
+                    monthlyExpense[monthKey] = (monthlyExpense[monthKey] || 0) + t.amount;
+                }
+            });
+            
+            const monthCount = Math.max(Object.keys(monthlyIncome).length, Object.keys(monthlyExpense).length, 1);
+            const avgMonthlyIncome = ytdIncome / monthCount;
+            const avgMonthlyExpense = ytdExpense / monthCount;
+            const savingsRate = ytdIncome > 0 ? ((ytdIncome - ytdExpense) / ytdIncome * 100) : 0;
+            
             // Update analytics display
             document.getElementById('ytdIncome').textContent = '$' + ytdIncome.toFixed(2);
             document.getElementById('ytdExpense').textContent = '$' + ytdExpense.toFixed(2);
             document.getElementById('topCategoryAmount').textContent = '$' + maxAmount.toFixed(2);
+            document.getElementById('savingsRate').textContent = savingsRate.toFixed(1) + '%';
+            document.getElementById('avgMonthlyExpense').textContent = '$' + avgMonthlyExpense.toFixed(2);
+            document.getElementById('avgMonthlyIncome').textContent = '$' + avgMonthlyIncome.toFixed(2);
             
             drawIncomeExpenseChart();
             drawCategoryPieChart();
