@@ -12,7 +12,7 @@
         .nav-menu { list-style: none; }
         .nav-item { padding: 1rem 1.5rem; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
         .nav-item:hover { background: #f8f9fa; }
-        .nav-item.active { background: #007bff; color: white; }
+        .nav-item.active { background: #10b981; color: white; }
         .main-container { flex: 1; }
         .header { background: white; padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .header-content { display: flex; justify-content: space-between; align-items: center; }
@@ -26,12 +26,114 @@
         .amount { font-size: 1.5rem; font-weight: bold; margin: 0.5rem 0; }
         .income-card .amount { color: #28a745; }
         .expense-card .amount { color: #dc3545; }
-        .action-btn { padding: 0.75rem; margin: 0.25rem; border: none; border-radius: 4px; cursor: pointer; }
-        .income-btn { background: #d4edda; color: #155724; }
-        .expense-btn { background: #f8d7da; color: #721c24; }
-        .transaction { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
-        .transaction.income .transaction-amount { color: #28a745; }
-        .transaction.expense .transaction-amount { color: #dc3545; }
+
+        /* NEW TRANSACTION UI */
+        .transaction-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+        .tag {
+            background: #10b98120;
+            padding: 4px 12px;
+            border-radius: 6px;
+            color: #10b981;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .date {
+            color: #777;
+            font-size: 12px;
+        }
+        .amount-income { color: #10b981; font-weight: bold; }
+        .amount-expense { color: #dc3545; font-weight: bold; }
+        .actions button {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 18px;
+            margin-left: 10px;
+        }
+        .btn-add {
+            background: #10e19c;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .btn-save {
+            flex: 1;
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .btn-cancel {
+            flex: 1;
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -84,42 +186,15 @@
                         <button class="action-btn income-btn">+ Add Income</button>
                         <button class="action-btn expense-btn">- Add Expense</button>
                     </div>
-                    <div class="card">
-                        <h3>📋 Recent Transactions</h3>
-                        <div class="transaction income">
-                            <div>
-                                <div>Salary</div>
-                                <small>Today</small>
-                            </div>
-                            <span class="transaction-amount">+$2,500.00</span>
-                        </div>
-                        <div class="transaction expense">
-                            <div>
-                                <div>Groceries</div>
-                                <small>Yesterday</small>
-                            </div>
-                            <span class="transaction-amount">-$85.50</span>
-                        </div>
-                    </div>
                 </div>
             </div>
 
-            <!-- Transactions Section -->
+            <!-- Transactions Section (UPDATED) -->
             <div id="transactions" class="content-section">
-                <div class="card">
+                <button class="btn-add" onclick="openModal()">+ Add Transaction</button>
+                <div class="transaction-box">
                     <h3>💳 All Transactions</h3>
-                    <div class="transaction income">
-                        <div><div>Salary</div><small>Dec 15, 2024</small></div>
-                        <span class="transaction-amount">+$2,500.00</span>
-                    </div>
-                    <div class="transaction expense">
-                        <div><div>Groceries</div><small>Dec 14, 2024</small></div>
-                        <span class="transaction-amount">-$85.50</span>
-                    </div>
-                    <div class="transaction expense">
-                        <div><div>Gas</div><small>Dec 13, 2024</small></div>
-                        <span class="transaction-amount">-$45.00</span>
-                    </div>
+                    <div id="transactionList"></div>
                 </div>
             </div>
 
@@ -128,9 +203,6 @@
                 <div class="card">
                     <h3>📈 Financial Analytics</h3>
                     <p>Monthly spending trends and insights will be displayed here.</p>
-                    <div style="height: 200px; background: #f8f9fa; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-top: 1rem;">
-                        📊 Charts and graphs coming soon
-                    </div>
                 </div>
             </div>
 
@@ -138,47 +210,141 @@
             <div id="settings" class="content-section">
                 <div class="card">
                     <h3>⚙️ Settings</h3>
-                    <div style="margin: 1rem 0;">
-                        <label>Currency: </label>
-                        <select style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd;">
-                            <option>USD ($)</option>
-                            <option>EUR (€)</option>
-                            <option>GBP (£)</option>
-                        </select>
-                    </div>
-                    <div style="margin: 1rem 0;">
-                        <label>Theme: </label>
-                        <select style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd;">
-                            <option>Light</option>
-                            <option>Dark</option>
-                        </select>
-                    </div>
-                    <button style="background: #007bff; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer;">Save Settings</button>
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- Modal -->
+    <div id="transactionModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Add Transaction</h3>
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="description" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount</label>
+                    <input type="number" id="amount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="type">
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" id="category" required>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="date" required>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn-save">Save</button>
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        // Navigation function
+        let transactions = [
+            {id: 1, description: 'Monthly Salary', amount: 2500, type: 'income', category: 'Salary', date: '2024-12-15'},
+            {id: 2, description: 'Groceries', amount: 85.50, type: 'expense', category: 'Food', date: '2024-12-14'},
+            {id: 3, description: 'Gas', amount: 45, type: 'expense', category: 'Transport', date: '2024-12-13'}
+        ];
+        let editingId = null;
+
+        function renderTransactions() {
+            const list = document.getElementById('transactionList');
+            list.innerHTML = transactions.map(t => `
+                <div class="transaction-item">
+                    <div>
+                        <h4>${t.description} <span class="tag" style="color:${t.type === 'income' ? '#10b981' : '#dc3545'}; background:${t.type === 'income' ? '#10b98120' : '#dc354520'};">${t.category}</span></h4>
+                        <span class="date">${new Date(t.date).toLocaleDateString()}</span>
+                    </div>
+                    <div class="amount-${t.type}">${t.type === 'income' ? '+' : '-'} $${t.amount.toFixed(2)}</div>
+                    <div class="actions">
+                        <button onclick="editTransaction(${t.id})">✏️</button>
+                        <button onclick="deleteTransaction(${t.id})">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openModal(id = null) {
+            editingId = id;
+            document.getElementById('modalTitle').textContent = id ? 'Edit Transaction' : 'Add Transaction';
+            
+            if (id) {
+                const t = transactions.find(tr => tr.id === id);
+                document.getElementById('description').value = t.description;
+                document.getElementById('amount').value = t.amount;
+                document.getElementById('type').value = t.type;
+                document.getElementById('category').value = t.category;
+                document.getElementById('date').value = t.date;
+            } else {
+                document.getElementById('transactionForm').reset();
+                document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            }
+            
+            document.getElementById('transactionModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('transactionModal').classList.remove('active');
+            editingId = null;
+        }
+
+        function editTransaction(id) {
+            openModal(id);
+        }
+
+        function deleteTransaction(id) {
+            if (confirm('Delete this transaction?')) {
+                transactions = transactions.filter(t => t.id !== id);
+                renderTransactions();
+            }
+        }
+
+        document.getElementById('transactionForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const data = {
+                description: document.getElementById('description').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                type: document.getElementById('type').value,
+                category: document.getElementById('category').value,
+                date: document.getElementById('date').value
+            };
+
+            if (editingId) {
+                const index = transactions.findIndex(t => t.id === editingId);
+                transactions[index] = {...transactions[index], ...data};
+            } else {
+                transactions.push({id: Date.now(), ...data});
+            }
+
+            renderTransactions();
+            closeModal();
+        });
+
         function showSection(sectionName) {
-            // Hide all sections
             document.querySelectorAll('.content-section').forEach(section => {
                 section.classList.remove('active');
             });
-            
-            // Remove active class from all nav items
+
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
             });
-            
-            // Show selected section
+
             document.getElementById(sectionName).classList.add('active');
-            
-            // Add active class to clicked nav item
             event.target.classList.add('active');
-            
-            // Update page title
+
             const titles = {
                 dashboard: 'Dashboard',
                 transactions: 'Transactions',
@@ -188,17 +354,16 @@
             document.getElementById('pageTitle').textContent = titles[sectionName];
         }
 
-        // Logout function
         window.logout = () => {
-            if (confirm('Are you sure you want to logout?')) {
-                window.location.href = 'index.html';
+            if (confirm("Logout?")) {
+                window.location.href = "index.html";
             }
         };
+
+        const params = new URLSearchParams(window.location.search);
+        document.getElementById("userEmail").textContent = params.get("email") || "user@example.com";
         
-        // Show user email
-        const urlParams = new URLSearchParams(window.location.search);
-        const email = urlParams.get('email') || 'user@example.com';
-        document.getElementById('userEmail').textContent = email;
+        renderTransactions();
     </script>
 </body>
 </html>

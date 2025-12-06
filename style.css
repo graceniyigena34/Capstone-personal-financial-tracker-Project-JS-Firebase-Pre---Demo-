@@ -9,7 +9,7 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -37,7 +37,7 @@ body {
 .left {
   flex: 1;
   padding: 60px 50px;
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
   color: white;
   display: flex;
   flex-direction: column;
@@ -76,7 +76,7 @@ body {
 
 .icon-box i {
   font-size: 32px;
-  color: #4ade80;
+  color: #10b981;
 }
 
 .left h1 {
@@ -116,7 +116,7 @@ body {
 .features li i {
   width: 20px;
   margin-right: 15px;
-  color: #4ade80;
+  color: #10b981;
   font-size: 16px;
 }
 
@@ -130,6 +130,12 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
+}
+
+.right > * {
+  width: 100%;
+  max-width: 400px;
 }
 
 /* Tabs */
@@ -203,9 +209,9 @@ input {
 
 input:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: #10b981;
   background: white;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
 input::placeholder {
@@ -294,8 +300,8 @@ input::placeholder {
 }
 
 .checkbox-container input:checked + .checkmark {
-  background: #3b82f6;
-  border-color: #3b82f6;
+  background: #10b981;
+  border-color: #10b981;
 }
 
 .checkbox-container input:checked + .checkmark::after {
@@ -312,7 +318,7 @@ input::placeholder {
 
 /* Links */
 .forgot-link, .link {
-  color: #3b82f6;
+  color: #10b981;
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
@@ -320,7 +326,7 @@ input::placeholder {
 }
 
 .forgot-link:hover, .link:hover {
-  color: #1d4ed8;
+  color: #059669;
   text-decoration: underline;
 }
 
@@ -342,14 +348,14 @@ input::placeholder {
 }
 
 .btn.primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .btn.primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
 }
 
 .btn.google-btn {
