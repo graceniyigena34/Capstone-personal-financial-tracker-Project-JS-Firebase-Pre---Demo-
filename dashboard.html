@@ -75,6 +75,7 @@
             cursor: pointer;
             margin-bottom: 1rem;
         }
+
         .modal {
             display: none;
             position: fixed;
@@ -389,12 +390,12 @@
             `).join('');
         }
 
-        function openModal(id = null) {
+        function openModal(id = null, type = null) {
             editingId = id;
-            document.getElementById('modalTitle').textContent = id ? 'Edit Transaction' : 'Add Transaction';
             
             if (id) {
                 const t = transactions.find(tr => tr.id === id);
+                document.getElementById('modalTitle').textContent = 'Edit Transaction';
                 document.getElementById('description').value = t.description;
                 document.getElementById('amount').value = t.amount;
                 document.getElementById('type').value = t.type;
@@ -402,8 +403,12 @@
                 document.getElementById('date').value = t.date;
                 document.getElementById('place').value = t.place || '';
             } else {
+                document.getElementById('modalTitle').textContent = type === 'income' ? 'Add Income' : type === 'expense' ? 'Add Expense' : 'Add Transaction';
                 document.getElementById('transactionForm').reset();
                 document.getElementById('date').value = new Date().toISOString().split('T')[0];
+                if (type) {
+                    document.getElementById('type').value = type;
+                }
             }
             
             document.getElementById('transactionModal').classList.add('active');
