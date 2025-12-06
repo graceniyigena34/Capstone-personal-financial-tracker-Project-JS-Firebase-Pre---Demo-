@@ -427,6 +427,7 @@
         <ul class="nav-menu">
             <li class="nav-item active" onclick="showSection('dashboard')">📊 Dashboard</li>
             <li class="nav-item" onclick="showSection('transactions')">💳 Transactions</li>
+            <li class="nav-item" onclick="showSection('categories')">🏷️ Categories</li>
             <li class="nav-item" onclick="showSection('analytics')">📈 Analytics</li>
             <li class="nav-item" onclick="showSection('settings')">⚙️ Settings</li>
         </ul>
@@ -527,6 +528,14 @@
                 <div class="transaction-box">
                     <h3>💳 All Transactions</h3>
                     <div id="transactionList"></div>
+                </div>
+            </div>
+
+            <!-- Categories Section -->
+            <div id="categories" class="content-section">
+                <div class="card">
+                    <h3>🏷️ Categories</h3>
+                    <p>Manage your transaction categories here.</p>
                 </div>
             </div>
 
@@ -854,6 +863,7 @@
             const titles = {
                 dashboard: 'Dashboard',
                 transactions: 'Transactions',
+                categories: 'Categories',
                 analytics: 'Analytics',
                 settings: 'Settings'
             };
