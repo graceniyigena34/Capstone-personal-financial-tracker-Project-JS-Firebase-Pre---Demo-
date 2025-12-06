@@ -709,54 +709,67 @@
                     <p>Manage your profile, preferences, and account settings</p>
                 </div>
                 
-                <!-- Profile Settings -->
-                <div class="card" style="margin-bottom: 1.5rem;">
-                    <h3 style="margin-bottom: 1rem;">👤 Profile</h3>
-                    <div class="form-group">
-                        <label>Full Name</label>
-                        <input type="text" id="profileName" placeholder="Enter your name">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                    <!-- Profile Settings -->
+                    <div class="card">
+                        <h3 style="margin-bottom: 1rem;">👤 Profile</h3>
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="profileName" placeholder="Enter your name">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="profileEmail" placeholder="Enter your email" disabled>
+                        </div>
+                        <button class="btn-save" style="width: 100%;" onclick="saveProfile()">Save Profile</button>
                     </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="profileEmail" placeholder="Enter your email" disabled>
+                    
+                    <!-- Preferences -->
+                    <div class="card">
+                        <h3 style="margin-bottom: 1rem;">🎨 Preferences</h3>
+                        <div class="form-group">
+                            <label>Currency</label>
+                            <select id="currency">
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="GBP">GBP (£)</option>
+                                <option value="JPY">JPY (¥)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Date Format</label>
+                            <select id="dateFormat">
+                                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Notifications</label>
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <span id="notificationStatus" style="color: #10b981; font-size: 0.9rem;">On</span>
+                                <label style="position: relative; display: inline-block; width: 50px; height: 24px; margin: 0;">
+                                    <input type="checkbox" id="notificationToggle" checked onchange="toggleNotifications()" style="opacity: 0; width: 0; height: 0;">
+                                    <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #10b981; transition: 0.4s; border-radius: 24px;"></span>
+                                    <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%;"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <button class="btn-save" style="width: 100%;" onclick="savePreferences()">Save Preferences</button>
                     </div>
-                    <button class="btn-save" style="width: auto;">Save Profile</button>
-                </div>
-                
-                <!-- Preferences -->
-                <div class="card" style="margin-bottom: 1.5rem;">
-                    <h3 style="margin-bottom: 1rem;">🎨 Preferences</h3>
-                    <div class="form-group">
-                        <label>Currency</label>
-                        <select id="currency">
-                            <option value="USD">USD ($)</option>
-                            <option value="EUR">EUR (€)</option>
-                            <option value="GBP">GBP (£)</option>
-                            <option value="JPY">JPY (¥)</option>
-                        </select>
+                    
+                    <!-- Account -->
+                    <div class="card">
+                        <h3 style="margin-bottom: 1rem;">🔐 Account</h3>
+                        <div class="form-group">
+                            <label>Change Password</label>
+                            <input type="password" id="currentPassword" placeholder="Current password" style="margin-bottom: 0.5rem;">
+                            <input type="password" id="newPassword" placeholder="New password" style="margin-bottom: 0.5rem;">
+                            <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                        </div>
+                        <button class="btn-save" style="width: 100%; margin-bottom: 0.5rem;" onclick="changePassword()">Change Password</button>
+                        <button class="btn-cancel" style="width: 100%; background: #dc3545;" onclick="deleteAccount()">Delete Account</button>
                     </div>
-                    <div class="form-group">
-                        <label>Date Format</label>
-                        <select id="dateFormat">
-                            <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                            <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                            <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                        </select>
-                    </div>
-                    <button class="btn-save" style="width: auto;">Save Preferences</button>
-                </div>
-                
-                <!-- Account -->
-                <div class="card">
-                    <h3 style="margin-bottom: 1rem;">🔐 Account</h3>
-                    <div class="form-group">
-                        <label>Change Password</label>
-                        <input type="password" id="currentPassword" placeholder="Current password" style="margin-bottom: 0.5rem;">
-                        <input type="password" id="newPassword" placeholder="New password" style="margin-bottom: 0.5rem;">
-                        <input type="password" id="confirmPassword" placeholder="Confirm new password">
-                    </div>
-                    <button class="btn-save" style="width: auto; margin-right: 0.5rem;">Change Password</button>
-                    <button class="btn-cancel" style="width: auto; background: #dc3545;">Delete Account</button>
                 </div>
             </div>
         </main>
@@ -1402,8 +1415,77 @@
                 categories.map(c => `<option value="${c}">${c}</option>`).join('');
         }
 
+        // Settings functions
+        function toggleNotifications() {
+            const toggle = document.getElementById('notificationToggle');
+            const status = document.getElementById('notificationStatus');
+            const slider = toggle.nextElementSibling;
+            
+            if (toggle.checked) {
+                status.textContent = 'On';
+                status.style.color = '#10b981';
+                slider.style.backgroundColor = '#10b981';
+                slider.nextElementSibling.style.transform = 'translateX(26px)';
+            } else {
+                status.textContent = 'Off';
+                status.style.color = '#dc3545';
+                slider.style.backgroundColor = '#ccc';
+                slider.nextElementSibling.style.transform = 'translateX(0)';
+            }
+        }
+
+        function saveProfile() {
+            const name = document.getElementById('profileName').value;
+            if (!name.trim()) {
+                alert('Please enter your name');
+                return;
+            }
+            alert('Profile saved successfully!');
+        }
+
+        function savePreferences() {
+            const currency = document.getElementById('currency').value;
+            const dateFormat = document.getElementById('dateFormat').value;
+            const notifications = document.getElementById('notificationToggle').checked ? 'Enabled' : 'Disabled';
+            alert(`Preferences saved!\nCurrency: ${currency}\nDate Format: ${dateFormat}\nEmail Notifications: ${notifications}`);
+        }
+
+        function changePassword() {
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            
+            if (!current || !newPass || !confirm) {
+                alert('Please fill in all password fields');
+                return;
+            }
+            if (newPass !== confirm) {
+                alert('New passwords do not match');
+                return;
+            }
+            if (newPass.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            alert('Password changed successfully!');
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        function deleteAccount() {
+            if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                alert('Account deleted. Redirecting to login...');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            }
+        }
+
         const params = new URLSearchParams(window.location.search);
-        document.getElementById("userEmail").textContent = params.get("email") || "user@example.com";
+        const userEmail = params.get("email") || "user@example.com";
+        document.getElementById("userEmail").textContent = userEmail;
+        document.getElementById("profileEmail").value = userEmail;
         
         renderTransactions();
         updateCategoryFilter();
