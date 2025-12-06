@@ -106,6 +106,85 @@
             color: #64748b;
             font-size: 0.95rem;
         }
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .summary-card {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+        .summary-card h4 {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+        .summary-card .value {
+            font-size: 1.75rem;
+            font-weight: bold;
+        }
+        .summary-card.income .value { color: #10b981; }
+        .summary-card.expense .value { color: #dc3545; }
+        .summary-card.balance .value { color: #3b82f6; }
+        .btn-filters {
+            background: white;
+            color: #1e293b;
+            border: 2px solid #e5e7eb;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-filters:hover {
+            background: #f8f9fa;
+            border-color: #d1d5db;
+        }
+        .filter-panel {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+        .filter-panel.active {
+            display: block;
+        }
+        .filter-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 0.75rem;
+            align-items: end;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .filter-group label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+        .filter-group input,
+        .filter-group select {
+            padding: 0.65rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        .btn-clear {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.65rem 1.25rem;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
 
         .modal {
             display: none;
@@ -305,23 +384,15 @@
                 <div class="dashboard-grid">
                     <div class="card">
                         <h3>💳 Total Balance</h3>
-                        <div class="balance-amount">$2,450.00</div>
-                        <div>+$150.00 this month</div>
+                        <div class="balance-amount" id="dashTotalBalance">$0.00</div>
                     </div>
                     <div class="card income-card">
-                        <h3>📈 Income</h3>
-                        <div class="amount">$3,200.00</div>
-                        <div>This month</div>
+                        <h3>📈 This Month Income</h3>
+                        <div class="amount" id="dashMonthIncome">$0.00</div>
                     </div>
                     <div class="card expense-card">
-                        <h3>📉 Expenses</h3>
-                        <div class="amount">$750.00</div>
-                        <div>This month</div>
-                    </div>
-                    <div class="card">
-                        <h3>⚡ Quick Actions</h3>
-                        <button class="action-btn income-btn">+ Add Income</button>
-                        <button class="action-btn expense-btn">- Add Expense</button>
+                        <h3>📉 This Month Expense</h3>
+                        <div class="amount" id="dashMonthExpense">$0.00</div>
                     </div>
                 </div>
             </div>
@@ -333,8 +404,46 @@
                     <p>View and manage all your financial transactions</p>
                 </div>
                 <div class="transaction-actions">
+                    <button class="btn-filters" onclick="toggleFilters()">🔍 Filters</button>
                     <button class="btn-export" onclick="exportCSV()">📥 Export CSV</button>
                     <button class="btn-add" onclick="openModal()">+ Add Transaction</button>
+                </div>
+                <div class="summary-cards">
+                    <div class="summary-card income">
+                        <h4>Total Income</h4>
+                        <div class="value" id="totalIncome">$0.00</div>
+                    </div>
+                    <div class="summary-card expense">
+                        <h4>Total Expense</h4>
+                        <div class="value" id="totalExpense">$0.00</div>
+                    </div>
+                    <div class="summary-card balance">
+                        <h4>Net Balance</h4>
+                        <div class="value" id="netBalance">$0.00</div>
+                    </div>
+                </div>
+                <div class="filter-panel" id="filterPanel">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label>Search transactions...</label>
+                            <input type="text" id="searchInput" placeholder="Search by description..." oninput="applyFilters()">
+                        </div>
+                        <div class="filter-group">
+                            <label>Type</label>
+                            <select id="filterType" onchange="applyFilters()">
+                                <option value="">All Types</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Category</label>
+                            <select id="filterCategory" onchange="applyFilters()">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+                        <button class="btn-clear" onclick="clearFilters()">Clear Filters</button>
+                    </div>
                 </div>
                 <div class="transaction-box">
                     <h3>💳 All Transactions</h3>
@@ -426,6 +535,36 @@
                     </div>
                 </div>
             `).join('');
+            
+            // Calculate totals
+            const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const totalExpense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            const netBalance = totalIncome - totalExpense;
+            
+            // Update summary cards (Transactions page)
+            document.getElementById('totalIncome').textContent = '$' + totalIncome.toFixed(2);
+            document.getElementById('totalExpense').textContent = '$' + totalExpense.toFixed(2);
+            document.getElementById('netBalance').textContent = '$' + netBalance.toFixed(2);
+            
+            // Calculate this month's data
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            
+            const monthIncome = transactions.filter(t => {
+                const tDate = new Date(t.date);
+                return t.type === 'income' && tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear;
+            }).reduce((sum, t) => sum + t.amount, 0);
+            
+            const monthExpense = transactions.filter(t => {
+                const tDate = new Date(t.date);
+                return t.type === 'expense' && tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear;
+            }).reduce((sum, t) => sum + t.amount, 0);
+            
+            // Update dashboard cards
+            document.getElementById('dashTotalBalance').textContent = '$' + netBalance.toFixed(2);
+            document.getElementById('dashMonthIncome').textContent = '$' + monthIncome.toFixed(2);
+            document.getElementById('dashMonthExpense').textContent = '$' + monthExpense.toFixed(2);
         }
 
         function openModal(id = null, type = null) {
@@ -545,10 +684,58 @@
             window.URL.revokeObjectURL(url);
         }
 
+        // Filter functions
+        function toggleFilters() {
+            document.getElementById('filterPanel').classList.toggle('active');
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const type = document.getElementById('filterType').value;
+            const category = document.getElementById('filterCategory').value;
+
+            const filtered = transactions.filter(t => {
+                const matchSearch = t.description.toLowerCase().includes(search);
+                const matchType = !type || t.type === type;
+                const matchCategory = !category || t.category === category;
+                return matchSearch && matchType && matchCategory;
+            });
+
+            const list = document.getElementById('transactionList');
+            list.innerHTML = filtered.map(t => `
+                <div class="transaction-item">
+                    <div>
+                        <h4>${t.description} <span class="tag" style="color:${t.type === 'income' ? '#10b981' : '#dc3545'}; background:${t.type === 'income' ? '#10b98120' : '#dc354520'};">${t.category}</span></h4>
+                        <span class="date">${new Date(t.date).toLocaleDateString()}</span>
+                    </div>
+                    <div class="amount-${t.type}">${t.type === 'income' ? '+' : '-'} $${t.amount.toFixed(2)}</div>
+                    <div class="actions">
+                        <button onclick="editTransaction(${t.id})">✏️</button>
+                        <button onclick="deleteTransaction(${t.id})">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterType').value = '';
+            document.getElementById('filterCategory').value = '';
+            renderTransactions();
+        }
+
+        function updateCategoryFilter() {
+            const categories = [...new Set(transactions.map(t => t.category))];
+            const select = document.getElementById('filterCategory');
+            select.innerHTML = '<option value="">All Categories</option>' + 
+                categories.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
         const params = new URLSearchParams(window.location.search);
         document.getElementById("userEmail").textContent = params.get("email") || "user@example.com";
         
         renderTransactions();
+        updateCategoryFilter();
     </script>
 </body>
 </html>
