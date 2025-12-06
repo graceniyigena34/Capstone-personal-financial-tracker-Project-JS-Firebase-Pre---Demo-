@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Financial Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex; }
@@ -247,6 +248,26 @@
             border-radius: 6px;
             cursor: pointer;
         }
+        .chart-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-top: 1.5rem;
+            grid-column: 1 / -1;
+        }
+        .chart-card h3 {
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
 
         /* RESPONSIVE - All Screen Sizes */
         
@@ -393,6 +414,12 @@
                     <div class="card expense-card">
                         <h3>📉 This Month Expense</h3>
                         <div class="amount" id="dashMonthExpense">$0.00</div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>📊 Balance Trend - Last 7 Days</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="balanceChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -565,6 +592,114 @@
             document.getElementById('dashTotalBalance').textContent = '$' + netBalance.toFixed(2);
             document.getElementById('dashMonthIncome').textContent = '$' + monthIncome.toFixed(2);
             document.getElementById('dashMonthExpense').textContent = '$' + monthExpense.toFixed(2);
+            
+            drawBalanceChart();
+        }
+
+        let balanceChart = null;
+
+        function drawBalanceChart() {
+            const days = [];
+            const balances = [];
+            
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                days.push(date.toLocaleDateString('en-US', {month: 'short', day: 'numeric'}));
+                
+                const dayTransactions = transactions.filter(t => {
+                    const tDate = new Date(t.date);
+                    return tDate.toDateString() <= date.toDateString();
+                });
+                
+                const income = dayTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+                const expense = dayTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+                balances.push(income - expense);
+            }
+            
+            if (balanceChart) balanceChart.destroy();
+            
+            const ctx = document.getElementById('balanceChart').getContext('2d');
+            balanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: days,
+                    datasets: [{
+                        label: 'Balance',
+                        data: balances,
+                        borderColor: '#10b981',
+                        backgroundColor: (context) => {
+                            const ctx = context.chart.ctx;
+                            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
+                            gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+                            return gradient;
+                        },
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#10b981',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverBackgroundColor: '#10b981',
+                        pointHoverBorderColor: '#fff',
+                        pointHoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                            padding: 12,
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#10b981',
+                            borderWidth: 1,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Balance: $' + context.parsed.y.toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#64748b',
+                                font: { size: 12 },
+                                callback: function(value) {
+                                    return '$' + value.toFixed(0);
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#64748b',
+                                font: { size: 12 }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
         }
 
         function openModal(id = null, type = null) {
@@ -736,6 +871,7 @@
         
         renderTransactions();
         updateCategoryFilter();
+        drawBalanceChart();
     </script>
 </body>
 </html>
