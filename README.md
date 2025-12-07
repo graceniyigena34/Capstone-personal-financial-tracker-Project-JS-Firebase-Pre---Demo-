@@ -47,3 +47,20 @@ Add a new transaction by entering the description, amount, type (income/expense)
 View the summary dashboard to track your financial status.
 
 Use the transaction history to review past transactions and manage your spending.
+
+## Future Enhancements
+
+User authentication and secure login
+
+Export transactions as CSV or PDF
+
+Advanced analytics and visual charts
+
+Multi-currency support
+
+Budget alerts and notifications
+
+The screen shoot of this project 
+
+Firebase Image ![Uploading Screenshot 2025-12-07 022834.png…]()
+
