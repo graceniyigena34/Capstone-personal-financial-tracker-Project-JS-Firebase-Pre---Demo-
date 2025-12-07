@@ -60,7 +60,14 @@ Multi-currency support
 
 Budget alerts and notifications
 
-The screen shoot of this project 
+## The screen shoot of this project 
 
-Firebase Image ![Uploading Screenshot 2025-12-07 022834.png…]()
+Firebase Image :![Uploading Screenshot 2025-12-07 022834.png…]()
 
+Analytics Image : ![alt text](Analytics.png)
+
+Transaction Image :![alt text](Transactions.png)
+
+Home page Image : ![alt text](<Home page (2).png>)
+
+Categories page: ![alt text](categories.png)
