@@ -15,3 +15,11 @@ Transaction History: View a detailed list of past transactions with filters.
 Responsive Design: Works seamlessly on mobile, tablet, and desktop devices.
 
 User-friendly Interface: Clean, intuitive design for easy navigation.
+
+## Technologies Used
+
+Frontend: HTML, CSS, JavaScript
+
+Backend: (Optional) Firebase or local storage for storing transaction data
+
+Libraries/Frameworks: Google Fonts, Chart.js (for visual charts)
