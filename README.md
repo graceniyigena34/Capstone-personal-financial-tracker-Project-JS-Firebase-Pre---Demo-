@@ -22,4 +22,18 @@ Frontend: HTML, CSS, JavaScript
 
 Backend: (Optional) Firebase or local storage for storing transaction data
 
-Libraries/Frameworks: Google Fonts, Chart.js (for visual charts)
+Libraries/Frameworks: Google Fonts, Chart.js (for visual charts).
+
+## Installation & Setup
+
+Clone the repository:
+
+git clone https://github.com/graceniyigena34/Capstone-personal-financial-tracker-Project-JS-Firebase-Pre---Demo-.git
+
+Navigate to the project folder:
+
+cd financial-tracker
+
+Open index.html in your web browser.
+
+ backend is used, set up Firebase or your preferred database following the configuration instructions.
