@@ -560,6 +560,11 @@
                     <div class="card">
                         <h3>💳 Total Balance</h3>
                         <div class="balance-amount" id="dashTotalBalance">$0.00</div>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                            <button onclick="editInitialBalance()" style="flex: 1; background: #10b981; color: white; border: none; padding: 0.5rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">✏️ Edit</button>
+                            <button onclick="saveInitialBalanceBtn()" style="flex: 1; background: #3b82f6; color: white; border: none; padding: 0.5rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">💾 Save</button>
+                            <button onclick="deleteInitialBalance()" style="flex: 1; background: #dc3545; color: white; border: none; padding: 0.5rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">🗑️ Delete</button>
+                        </div>
                     </div>
                     <div class="card income-card">
                         <h3>📈 This Month Income</h3>
@@ -783,6 +788,10 @@
                             <label>Email</label>
                             <input type="email" id="profileEmail" placeholder="Enter your email">
                         </div>
+                        <div class="form-group">
+                            <label>Initial Balance</label>
+                            <input type="number" id="initialBalance" placeholder="Enter your starting balance" step="0.01">
+                        </div>
                         <button class="btn-save" style="width: 100%;" onclick="saveProfile()">Save Profile</button>
                     </div>
                     
@@ -898,15 +907,36 @@
             return d.toISOString().split('T')[0];
         };
         
-        let transactions = [
-            {id: 1, description: 'Monthly Salary', amount: 2500, type: 'income', category: 'Salary', date: getRecentDate(5), place: 'Company Office', receipt: null},
-            {id: 2, description: 'Freelance Project', amount: 800, type: 'income', category: 'Freelance', date: getRecentDate(10), place: 'Online', receipt: null},
-            {id: 3, description: 'Stock Dividend', amount: 150, type: 'income', category: 'Investment', date: getRecentDate(15), place: 'Brokerage', receipt: null},
-            {id: 4, description: 'Groceries', amount: 85.50, type: 'expense', category: 'Food', date: getRecentDate(3), place: 'Walmart', receipt: null},
-            {id: 5, description: 'Gas', amount: 45, type: 'expense', category: 'Transport', date: getRecentDate(7), place: 'Shell Station', receipt: null},
-            {id: 6, description: 'New Shoes', amount: 120, type: 'expense', category: 'Shopping', date: getRecentDate(12), place: 'Nike Store', receipt: null},
-            {id: 7, description: 'Electricity Bill', amount: 95, type: 'expense', category: 'Bills', date: getRecentDate(18), place: 'Utility Company', receipt: null}
-        ];
+        // Get current user email
+        const params = new URLSearchParams(window.location.search);
+        const currentUserEmail = params.get("email") || "user@example.com";
+        
+        // Load user-specific transactions from localStorage
+        function loadUserTransactions() {
+            const allTransactions = JSON.parse(localStorage.getItem('allTransactions') || '{}');
+            return allTransactions[currentUserEmail] || [];
+        }
+        
+        // Save user-specific transactions to localStorage
+        function saveUserTransactions() {
+            const allTransactions = JSON.parse(localStorage.getItem('allTransactions') || '{}');
+            allTransactions[currentUserEmail] = transactions;
+            localStorage.setItem('allTransactions', JSON.stringify(allTransactions));
+        }
+        
+        // Load/Save initial balance
+        function loadInitialBalance() {
+            const balances = JSON.parse(localStorage.getItem('userBalances') || '{}');
+            return balances[currentUserEmail] || 0;
+        }
+        
+        function saveInitialBalance(balance) {
+            const balances = JSON.parse(localStorage.getItem('userBalances') || '{}');
+            balances[currentUserEmail] = balance;
+            localStorage.setItem('userBalances', JSON.stringify(balances));
+        }
+        
+        let transactions = loadUserTransactions();
         let editingId = null;
         
         let incomeCategories = ['Salary', 'Freelance', 'Investment'];
@@ -989,6 +1019,10 @@
 
         function renderTransactions() {
             const list = document.getElementById('transactionList');
+            if (transactions.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #64748b; padding: 2rem;">No transactions yet. Click "+ Add Transaction" to get started!</p>';
+                return;
+            }
             list.innerHTML = transactions.map(t => `
                 <div class="transaction-item">
                     <div>
@@ -1006,7 +1040,8 @@
             // Calculate totals
             const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
             const totalExpense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-            const netBalance = totalIncome - totalExpense;
+            const initialBalance = loadInitialBalance();
+            const netBalance = initialBalance + totalIncome - totalExpense;
             
             // Update summary cards (Transactions page)
             document.getElementById('totalIncome').textContent = '$' + totalIncome.toFixed(2);
@@ -1212,7 +1247,7 @@
             const list = document.getElementById('recentTransactionsList');
             
             if (recent.length === 0) {
-                list.innerHTML = '<p style="color: #64748b; text-align: center; padding: 1rem;">No transactions yet</p>';
+                list.innerHTML = '<p style="color: #64748b; text-align: center; padding: 1rem;">No transactions yet. Start by adding your first transaction!</p>';
                 return;
             }
             
@@ -1369,6 +1404,7 @@
         function deleteTransaction(id) {
             if (confirm('Delete this transaction?')) {
                 transactions = transactions.filter(t => t.id !== id);
+                saveUserTransactions();
                 renderTransactions();
             }
         }
@@ -1400,6 +1436,7 @@
                 transactions.push({id: Date.now(), ...data});
             }
 
+            saveUserTransactions();
             renderTransactions();
             renderCategories();
             closeModal();
@@ -1522,10 +1559,13 @@
 
         function saveProfile() {
             const name = document.getElementById('profileName').value;
+            const balance = parseFloat(document.getElementById('initialBalance').value) || 0;
             if (!name.trim()) {
                 alert('Please enter your name');
                 return;
             }
+            saveInitialBalance(balance);
+            renderTransactions();
             alert('Profile saved successfully!');
         }
 
@@ -1594,11 +1634,44 @@
             const field = document.getElementById(fieldId);
             field.type = field.type === 'password' ? 'text' : 'password';
         }
+        
+        function editInitialBalance() {
+            const currentBalance = loadInitialBalance();
+            const newBalance = prompt('Enter your initial balance:', currentBalance);
+            if (newBalance !== null && !isNaN(newBalance)) {
+                tempBalance = parseFloat(newBalance);
+                alert('Balance entered. Click "Save" to confirm.');
+            }
+        }
+        
+        let tempBalance = null;
+        
+        function saveInitialBalanceBtn() {
+            if (tempBalance !== null) {
+                saveInitialBalance(tempBalance);
+                const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+                const totalExpense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+                const newBalance = tempBalance + totalIncome - totalExpense;
+                document.getElementById('dashTotalBalance').textContent = '$' + newBalance.toFixed(2);
+                alert('Initial balance saved successfully!');
+                tempBalance = null;
+            } else {
+                const currentBalance = loadInitialBalance();
+                alert(`Current balance: $${currentBalance.toFixed(2)}\nNo changes to save.`);
+            }
+        }
+        
+        function deleteInitialBalance() {
+            if (confirm('Are you sure you want to reset your initial balance to $0.00?')) {
+                saveInitialBalance(0);
+                renderTransactions();
+                alert('Initial balance reset to $0.00');
+            }
+        }
 
-        const params = new URLSearchParams(window.location.search);
-        const userEmail = params.get("email") || "user@example.com";
-        document.getElementById("userEmail").textContent = userEmail;
-        document.getElementById("profileEmail").value = userEmail;
+        document.getElementById("userEmail").textContent = currentUserEmail;
+        document.getElementById("profileEmail").value = currentUserEmail;
+        document.getElementById('initialBalance').value = loadInitialBalance();
         
         // Load stored password
         const storedPassword = localStorage.getItem('userPassword');
