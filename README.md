@@ -37,3 +37,13 @@ cd financial-tracker
 Open index.html in your web browser.
 
  backend is used, set up Firebase or your preferred database following the configuration instructions.
+
+ ## Usage
+
+Open the web application in your browser.
+
+Add a new transaction by entering the description, amount, type (income/expense), and category.
+
+View the summary dashboard to track your financial status.
+
+Use the transaction history to review past transactions and manage your spending.
