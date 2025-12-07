@@ -39,7 +39,11 @@ window.signIn = async (email, password) => {
     return userCredential.user;
   } catch (error) {
     console.error('Sign in error:', error);
-    alert('Error: ' + error.message);
+    if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+      alert('No account found with this email. Please create an account first!');
+    } else {
+      alert('Error: ' + error.message);
+    }
   }
 };
 
